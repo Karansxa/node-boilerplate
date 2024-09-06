@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  password      String
+  webDevices    Int      @default(5) // Limit for web devices
+  mobileDevices Int      @default(5) // Limit for mobile devices
+  devices       Device[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Device {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId     String   @db.ObjectId
+  deviceType  String   // Should be 'web' or 'mobile'
+  details     Json     // Column for storing device details like IP, MAC address
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  admin       Admin    @relation(fields: [adminId], references: [id])
+}
